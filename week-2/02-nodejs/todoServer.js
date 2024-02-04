@@ -39,11 +39,80 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+
+/// ANSWER BY SOHAM KULKARNI
+
+
+const express = require("express");
+const bodyParser = require("body-parser");
+
+const app = express();
+
+app.use(bodyParser.json());
+
+let todos = [
+  { id: 1023, title: "Buy fruites", description: "Buy fruits from market",completed:true },
+  { id: 3321, title: "Buy milk", description: "Buy milk from market", completed:false },
+];
+
+app.get("/todos", (req, res) => {
+  res.status(200).json(todos);
+});
+
+app.post("/todos", (req, res) => {
+  const newTodo = {
+    id: Math.floor(Math.random() * 100000),
+    title: req.body.title,
+    description: req.body.description,
+    completed:false
+  };
+  todos.push(newTodo);
+  res.status(201).json({ success: "true" });
+  console.log(todos);
+});
+
+app.get("/todos/:id",(req,res)=>{
+  const foundTodo = todos.find(t=>t.id === parseInt(req.params.id));
+  if(foundTodo){
+    res.status(200).json(foundTodo);
+  }
+  else{
+    res.status(404).json({error:"Not found"})
+  }
+})
+
+app.put("/todos/:id",(req,res)=>{
+  const foundIndex = todos.findIndex(t=>t.id === parseInt(req.params.id));
+  if(foundIndex === -1){
+    res.status(404).json({error:"Item not found"})
+  }
+  else{
+    todos[foundIndex].title = req.body.title,
+    todos[foundIndex].description = req.body.description,
+    todos[foundIndex].completed = req.body.completed,
+    res.status(200).json(todos[foundIndex]);
+  }
+})
+
+app.delete("/todos/:id",(req,res)=>{
+  const foundIndex = todos.findIndex(t=>t.id === parseInt(req.params.id));
+  if(foundIndex === -1){
+    res.status(404).json({error:"Item not found"})
+  }
+  else{
+    todos.splice(foundIndex,1)
+    res.status(200).json(todos);
+  }
+})
+
+app.use((req,res,next)=>{
+  res.status(404).json({error:"Hey there try out different page"})
+})
+
+
+
+app.listen(3000, () => {
+  console.log("listening on port 3000");
+});
+
+module.exports = app;
